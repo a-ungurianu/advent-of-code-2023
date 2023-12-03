@@ -1,5 +1,7 @@
 const std = @import("std");
 
+const bp = @import("../../boilerplate.zig");
+
 fn get_single_digit(line: []u8, idx: usize) ?u32 {
     const c = line[idx];
     if ('0' <= c and c <= '9') {
@@ -52,10 +54,7 @@ fn find_calibration_value(line: []u8, comptime get_digit: fn (line: []u8, idx: u
     return first_digit * 10 + last_digit;
 }
 
-pub fn main() !void {
-    var file = try std.fs.cwd().openFile("input", .{});
-    defer file.close();
-
+pub fn solve(file: std.fs.File) anyerror!bp.AoCResult {
     var buf_reader = std.io.bufferedReader(file.reader());
     var in_stream = buf_reader.reader();
 
@@ -68,6 +67,5 @@ pub fn main() !void {
         total2 += find_calibration_value(line, get_digit_better);
     }
 
-    std.log.info("Part 1 result: {}", .{total});
-    std.log.info("Part 2 result: {}", .{total2});
+    return bp.AoCResult{ .part1 = total, .part2 = total2 };
 }
