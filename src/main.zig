@@ -20,6 +20,20 @@ fn getDayDir(allocator: std.mem.Allocator, day: u8, path: []const []const u8) ![
     return try std.fs.path.join(allocator, pathBits.items);
 }
 
+fn executeSolution(allocator: std.mem.Allocator, comptime solution: Solution, input_file: ?[]u8) !void {
+    const dayDir = try getDayDir(allocator, solution.day, &[_][]const u8{ "data", input_file orelse "input" });
+    defer allocator.free(dayDir);
+
+    var file = std.fs.openFileAbsolute(dayDir, .{}) catch |err| {
+        std.log.err("Failed to open {s}\n", .{dayDir});
+        return err;
+    };
+    const result = try solution.solve(file);
+
+    std.log.info("[Day {}] Part 1 result: {}", .{ solution.day, result.part1 });
+    std.log.info("[Day {}] Part 2 result: {}", .{ solution.day, result.part2 });
+}
+
 pub fn main() anyerror!void {
     var allocator = std.heap.GeneralPurposeAllocator(.{}){};
     defer std.debug.assert(allocator.deinit() == .ok);
@@ -28,14 +42,15 @@ pub fn main() anyerror!void {
     defer std.process.argsFree(allocator.allocator(), args);
     if (args.len == 1) {
         inline for (solutions) |solution| {
-            const dayDir = try getDayDir(allocator.allocator(), solution.day, &[_][]const u8{ "data", "input" });
-            defer allocator.allocator().free(dayDir);
-
-            var file = try std.fs.openFileAbsolute(dayDir, .{});
-            const result = try solution.solve(file);
-
-            std.log.info("[Day {}] Part 1 result: {}", .{ solution.day, result.part1 });
-            std.log.info("[Day {}] Part 2 result: {}", .{ solution.day, result.part2 });
+            try executeSolution(allocator.allocator(), solution, null);
+        }
+    }
+    if (args.len == 2 or args.len == 3) {
+        const day = try std.fmt.parseUnsigned(u8, args[1], 10);
+        inline for (solutions) |solution| {
+            if (solution.day == day) {
+                try executeSolution(allocator.allocator(), solution, if (args.len == 3) args[2] else null);
+            }
         }
     }
 }
