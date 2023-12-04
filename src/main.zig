@@ -3,7 +3,11 @@ const bp = @import("./boilerplate.zig");
 
 const Solution = struct { day: u8, solve: bp.Solver };
 
-const solutions = [_]Solution{ Solution{ .day = 1, .solve = @import("./days/01/solve.zig").solve }, Solution{ .day = 2, .solve = @import("./days/02/solve.zig").solve } };
+const solutions = [_]Solution{
+    Solution{ .day = 1, .solve = @import("./days/01/solve.zig").solve },
+    Solution{ .day = 2, .solve = @import("./days/02/solve.zig").solve },
+    Solution{ .day = 3, .solve = @import("./days/03/solve.zig").solve },
+};
 
 fn getDayDir(allocator: std.mem.Allocator, day: u8, path: []const []const u8) ![]u8 {
     const cwd = try std.process.getCwdAlloc(allocator);
