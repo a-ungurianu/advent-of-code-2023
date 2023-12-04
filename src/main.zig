@@ -4,10 +4,10 @@ const bp = @import("./boilerplate.zig");
 const Solution = struct { day: u8, solve: bp.Solver };
 
 const solutions = [_]Solution{
-    Solution{ .day = 1, .solve = @import("./days/01/solve.zig").solve },
-    Solution{ .day = 2, .solve = @import("./days/02/solve.zig").solve },
-    Solution{ .day = 3, .solve = @import("./days/03/solve.zig").solve },
-    Solution{ .day = 4, .solve = @import("./days/04/solve.zig").solve },
+    .{ .day = 1, .solve = @import("./days/01/solve.zig").solve },
+    .{ .day = 2, .solve = @import("./days/02/solve.zig").solve },
+    .{ .day = 3, .solve = @import("./days/03/solve.zig").solve },
+    .{ .day = 4, .solve = @import("./days/04/solve.zig").solve },
 };
 
 fn getDayDir(allocator: std.mem.Allocator, day: u8, path: []const []const u8) ![]u8 {
@@ -33,7 +33,7 @@ fn executeSolution(allocator: std.mem.Allocator, comptime solution: Solution, in
         std.log.err("Failed to open {s}\n", .{dayDir});
         return err;
     };
-    const result = try solution.solve(file);
+    const result = try solution.solve(allocator, file);
 
     std.log.info("[Day {}] Part 1 result: {}", .{ solution.day, result.part1 });
     std.log.info("[Day {}] Part 2 result: {}", .{ solution.day, result.part2 });

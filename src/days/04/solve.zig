@@ -23,6 +23,7 @@ fn parseNumberSet(allocator: std.mem.Allocator, buf: []const u8) !NumberSet {
     var tokens = std.mem.tokenizeScalar(u8, buf, ' ');
 
     var numbers = NumberSet.init(allocator);
+    errdefer numbers.deinit();
 
     while (tokens.next()) |token| {
         try numbers.put(try std.fmt.parseUnsigned(u8, token, 10), {});
@@ -44,6 +45,7 @@ fn parseCard(allocator: std.mem.Allocator, line: []const u8) !Card {
 
 fn setIntesection(comptime T: type, allocator: std.mem.Allocator, setA: HashSet(T), setB: HashSet(T)) !HashSet(T) {
     var intersect = HashSet(T).init(allocator);
+    errdefer intersect.deinit();
 
     var it = setA.keyIterator();
 
@@ -88,6 +90,7 @@ pub fn solve(allocator: std.mem.Allocator, file: std.fs.File) anyerror!bp.AoCRes
 
         var pickedWinners = try setIntesection(u8, allocator, card.winning, card.scratched);
         defer pickedWinners.deinit();
+
         if (pickedWinners.count() > 0) {
             part1 += std.math.pow(u64, 2, pickedWinners.count() - 1);
         }

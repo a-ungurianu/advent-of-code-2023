@@ -52,6 +52,8 @@ fn parseCubeCount(line: []const u8) !CubeCount {
 
 fn parseCubeCounts(line: []const u8, allocator: std.mem.Allocator) !std.ArrayList(CubeCount) {
     var cubePicks = std.ArrayList(CubeCount).init(allocator);
+    errdefer cubePicks.deinit();
+
     var pickIt = std.mem.split(u8, line, ";");
     while (pickIt.next()) |pick| {
         const parsedCubeCount = try parseCubeCount(pick);
@@ -91,6 +93,7 @@ pub fn solve(allocator: std.mem.Allocator, file: std.fs.File) anyerror!bp.AoCRes
     var total2: u32 = 0;
     while (try in_stream.readUntilDelimiterOrEof(&buf, '\n')) |line| {
         const game = try parseGame(line, allocator);
+        defer game.picks.deinit();
 
         if (every(CubeCount, game.picks, fitsInPart1Capacity)) {
             total += game.id;
@@ -103,7 +106,6 @@ pub fn solve(allocator: std.mem.Allocator, file: std.fs.File) anyerror!bp.AoCRes
             minCube.green = @max(minCube.green, pick.green);
         }
         total2 += minCube.red * minCube.blue * minCube.green;
-        defer game.picks.deinit();
     }
 
     return bp.AoCResult{ .part1 = total, .part2 = total2 };

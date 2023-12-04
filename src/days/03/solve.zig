@@ -19,6 +19,7 @@ fn u8ToKind(c: u8) CellKind {
 
 fn findPartsInRow(allocator: std.mem.Allocator, row: Row) !std.ArrayList(PartNo) {
     var parts = std.ArrayList(PartNo).init(allocator);
+    errdefer parts.deinit();
 
     var numCandidate: u64 = 0;
     var nearSymbol: ?*Cell = null;

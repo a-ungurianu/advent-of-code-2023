@@ -10,7 +10,18 @@ fn get_single_digit(line: []u8, idx: usize) ?u32 {
     return null;
 }
 
-const digits_spelled = [_][]const u8{ "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten" };
+const digits_spelled = [_][]const u8{
+    "one",
+    "two",
+    "three",
+    "four",
+    "five",
+    "six",
+    "seven",
+    "eight",
+    "nine",
+    "ten",
+};
 
 fn get_digit_better(line: []u8, idx: usize) ?u32 {
     if (get_single_digit(line, idx)) |digit| {
@@ -27,7 +38,9 @@ fn get_digit_better(line: []u8, idx: usize) ?u32 {
     return null;
 }
 
-fn find_first_digit(line: []u8, comptime get_digit: fn (line: []u8, idx: usize) ?u32) u32 {
+const DigitFinder = fn (line: []u8, idx: usize) ?u32;
+
+fn find_first_digit(line: []u8, comptime get_digit: DigitFinder) u32 {
     var i: usize = 0;
     while (i < line.len) : (i += 1) {
         if (get_digit(line, i)) |digit| {
@@ -37,7 +50,7 @@ fn find_first_digit(line: []u8, comptime get_digit: fn (line: []u8, idx: usize) 
     unreachable;
 }
 
-fn find_last_digit(line: []u8, comptime get_digit: fn (line: []u8, idx: usize) ?u32) u32 {
+fn find_last_digit(line: []u8, comptime get_digit: DigitFinder) u32 {
     var i = line.len;
     while (i > 0) : (i -= 1) {
         if (get_digit(line, i - 1)) |digit| {
@@ -47,7 +60,7 @@ fn find_last_digit(line: []u8, comptime get_digit: fn (line: []u8, idx: usize) ?
     unreachable;
 }
 
-fn find_calibration_value(line: []u8, comptime get_digit: fn (line: []u8, idx: usize) ?u32) u32 {
+fn find_calibration_value(line: []u8, comptime get_digit: DigitFinder) u32 {
     const first_digit = find_first_digit(line, get_digit);
     const last_digit = find_last_digit(line, get_digit);
 
