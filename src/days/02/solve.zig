@@ -81,19 +81,16 @@ fn fitsInPart1Capacity(pick: CubeCount) bool {
     return fitsInCapacity(CAPACITY, pick);
 }
 
-pub fn solve(file: std.fs.File) anyerror!bp.AoCResult {
+pub fn solve(allocator: std.mem.Allocator, file: std.fs.File) anyerror!bp.AoCResult {
     var buf_reader = std.io.bufferedReader(file.reader());
     var in_stream = buf_reader.reader();
-
-    var allocator = std.heap.GeneralPurposeAllocator(.{}){};
-    defer std.debug.assert(allocator.deinit() == .ok);
 
     var buf: [200]u8 = undefined;
 
     var total: u32 = 0;
     var total2: u32 = 0;
     while (try in_stream.readUntilDelimiterOrEof(&buf, '\n')) |line| {
-        const game = try parseGame(line, allocator.allocator());
+        const game = try parseGame(line, allocator);
 
         if (every(CubeCount, game.picks, fitsInPart1Capacity)) {
             total += game.id;

@@ -54,7 +54,7 @@ fn find_calibration_value(line: []u8, comptime get_digit: fn (line: []u8, idx: u
     return first_digit * 10 + last_digit;
 }
 
-pub fn solve(file: std.fs.File) anyerror!bp.AoCResult {
+pub fn solve(_: std.mem.Allocator, file: std.fs.File) anyerror!bp.AoCResult {
     var buf_reader = std.io.bufferedReader(file.reader());
     var in_stream = buf_reader.reader();
 

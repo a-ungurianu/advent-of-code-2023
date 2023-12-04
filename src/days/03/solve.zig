@@ -98,13 +98,9 @@ fn debugPrint(map: Map) void {
     }
 }
 
-pub fn solve(file: std.fs.File) anyerror!bp.AoCResult {
+pub fn solve(allocator: std.mem.Allocator, file: std.fs.File) anyerror!bp.AoCResult {
     var buf_reader = std.io.bufferedReader(file.reader());
     var in_stream = buf_reader.reader();
-
-    var gpa = std.heap.GeneralPurposeAllocator(.{}){};
-    var allocator = gpa.allocator();
-    defer std.debug.assert(gpa.deinit() == .ok);
 
     var buf: [1000]u8 = undefined;
     var rowIdx: u16 = 1;

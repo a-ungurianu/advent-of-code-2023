@@ -40,29 +40,24 @@ fn executeSolution(allocator: std.mem.Allocator, comptime solution: Solution, in
 }
 
 pub fn main() anyerror!void {
-    var allocator = std.heap.GeneralPurposeAllocator(.{}){};
-    defer std.debug.assert(allocator.deinit() == .ok);
+    var gpa = std.heap.GeneralPurposeAllocator(.{}){};
+    defer std.debug.assert(gpa.deinit() == .ok);
 
-    const args = try std.process.argsAlloc(allocator.allocator());
-    defer std.process.argsFree(allocator.allocator(), args);
+    const allocator = gpa.allocator();
+
+    const args = try std.process.argsAlloc(allocator);
+    defer std.process.argsFree(allocator, args);
     if (args.len == 1) {
         inline for (solutions) |solution| {
-            try executeSolution(allocator.allocator(), solution, null);
+            try executeSolution(allocator, solution, null);
         }
     }
     if (args.len == 2 or args.len == 3) {
         const day = try std.fmt.parseUnsigned(u8, args[1], 10);
         inline for (solutions) |solution| {
             if (solution.day == day) {
-                try executeSolution(allocator.allocator(), solution, if (args.len == 3) args[2] else null);
+                try executeSolution(allocator, solution, if (args.len == 3) args[2] else null);
             }
         }
     }
-}
-
-test "simple test" {
-    var list = std.ArrayList(i32).init(std.testing.allocator);
-    defer list.deinit(); // try commenting this out and see if zig detects the memory leak!
-    try list.append(42);
-    try std.testing.expectEqual(@as(i32, 42), list.pop());
 }
