@@ -4,12 +4,12 @@ const bp = @import("../../boilerplate.zig");
 
 const CellKind = enum { Space, Digit, Symbol };
 
-const Cell = struct { kind: CellKind = CellKind.Space, value: u8 = '.', symbolNear: ?*Cell = null };
+const Cell = struct { kind: CellKind = CellKind.Space, value: u8 = '.', symbol_near: ?*Cell = null };
 
 const Row = std.ArrayList(Cell);
 const Map = std.ArrayList(Row);
 
-const PartNo = struct { no: u64, symbolNear: *Cell };
+const PartNo = struct { no: u64, symbol_near: *Cell };
 
 fn u8ToKind(c: u8) CellKind {
     if (c == '.') return CellKind.Space;
@@ -21,29 +21,29 @@ fn findPartsInRow(allocator: std.mem.Allocator, row: Row) !std.ArrayList(PartNo)
     var parts = std.ArrayList(PartNo).init(allocator);
     errdefer parts.deinit();
 
-    var numCandidate: u64 = 0;
-    var nearSymbol: ?*Cell = null;
+    var num_candidate: u64 = 0;
+    var near_symbol: ?*Cell = null;
 
     for (row.items) |cell| {
         if (cell.kind == CellKind.Digit) {
-            nearSymbol = cell.symbolNear orelse nearSymbol;
-            numCandidate = numCandidate * 10 + (cell.value - '0');
+            near_symbol = cell.symbol_near orelse near_symbol;
+            num_candidate = num_candidate * 10 + (cell.value - '0');
         } else {
-            if (nearSymbol) |symbol| {
-                try parts.append(.{ .no = numCandidate, .symbolNear = symbol });
+            if (near_symbol) |symbol| {
+                try parts.append(.{ .no = num_candidate, .symbol_near = symbol });
             }
-            nearSymbol = null;
-            numCandidate = 0;
+            near_symbol = null;
+            num_candidate = 0;
         }
     }
 
     return parts;
 }
 
-fn sumParts(partNos: std.ArrayList(PartNo)) !u64 {
+fn sumParts(part_nos: std.ArrayList(PartNo)) !u64 {
     var total: u64 = 0;
 
-    for (partNos.items) |partNo| {
+    for (part_nos.items) |partNo| {
         total += partNo.no;
     }
 
@@ -51,17 +51,17 @@ fn sumParts(partNos: std.ArrayList(PartNo)) !u64 {
 }
 
 fn analyzeMap(allocator: std.mem.Allocator, map: Map) !bp.AoCResult {
-    var sumPartNos: u64 = 0;
-    var gearMap = std.AutoHashMap(*Cell, struct { count: u8 = 0, product: u64 = 1 }).init(allocator);
-    defer gearMap.deinit();
+    var sum_part_nos: u64 = 0;
+    var gear_map = std.AutoHashMap(*Cell, struct { count: u8 = 0, product: u64 = 1 }).init(allocator);
+    defer gear_map.deinit();
 
     for (map.items) |row| {
         const parts = try findPartsInRow(allocator, row);
         defer parts.deinit();
         for (parts.items) |part| {
-            sumPartNos += part.no;
-            if (part.symbolNear.value == '*') {
-                var entry = &try gearMap.getOrPutValue(part.symbolNear, .{});
+            sum_part_nos += part.no;
+            if (part.symbol_near.value == '*') {
+                var entry = &try gear_map.getOrPutValue(part.symbol_near, .{});
                 if (entry.value_ptr.count < 2) {
                     entry.value_ptr.product *= part.no;
                 }
@@ -70,16 +70,16 @@ fn analyzeMap(allocator: std.mem.Allocator, map: Map) !bp.AoCResult {
         }
     }
 
-    var iter = gearMap.valueIterator();
+    var iter = gear_map.valueIterator();
 
-    var sumGearRatioProducts: u64 = 0;
+    var sum_gear_ratio_products: u64 = 0;
     while (iter.next()) |value| {
         if (value.count == 2) {
-            sumGearRatioProducts += value.product;
+            sum_gear_ratio_products += value.product;
         }
     }
 
-    return .{ .part1 = sumPartNos, .part2 = sumGearRatioProducts };
+    return .{ .part1 = sum_part_nos, .part2 = sum_gear_ratio_products };
 }
 
 fn debugPrint(map: Map) void {
@@ -104,44 +104,44 @@ pub fn solve(allocator: std.mem.Allocator, file: std.fs.File) anyerror!bp.AoCRes
     var in_stream = buf_reader.reader();
 
     var buf: [1000]u8 = undefined;
-    var rowIdx: u16 = 1;
+    var row_idx: u16 = 1;
 
-    var mapOpt: ?Map = null;
+    var map_opt: ?Map = null;
     defer {
-        if (mapOpt) |mapR| {
-            for (mapR.items) |row| {
+        if (map_opt) |map| {
+            for (map.items) |row| {
                 row.deinit();
             }
-            mapR.deinit();
+            map.deinit();
         }
     }
-    while (try in_stream.readUntilDelimiterOrEof(&buf, '\n')) |line| : (rowIdx += 1) {
-        if (mapOpt == null) {
-            mapOpt = @TypeOf(mapOpt.?).init(allocator);
+    while (try in_stream.readUntilDelimiterOrEof(&buf, '\n')) |line| : (row_idx += 1) {
+        if (map_opt == null) {
+            map_opt = @TypeOf(map_opt.?).init(allocator);
             var row = try Row.initCapacity(allocator, line.len + 2);
             try row.resize(line.len + 2);
             for (0..row.items.len) |i| {
                 row.items[i] = Cell{};
             }
-            try mapOpt.?.append(row);
+            try map_opt.?.append(row);
             row = try Row.initCapacity(allocator, line.len + 2);
             try row.resize(line.len + 2);
             for (0..row.items.len) |i| {
                 row.items[i] = Cell{};
             }
-            try mapOpt.?.append(row);
+            try map_opt.?.append(row);
         }
 
-        var map = &mapOpt.?;
-        var newRow = try Row.initCapacity(allocator, line.len + 2);
-        try newRow.resize(line.len + 2);
-        for (0..newRow.items.len) |i| {
-            newRow.items[i] = Cell{};
+        var map = &map_opt.?;
+        var new_row = try Row.initCapacity(allocator, line.len + 2);
+        try new_row.resize(line.len + 2);
+        for (0..new_row.items.len) |i| {
+            new_row.items[i] = Cell{};
         }
-        try map.append(newRow);
+        try map.append(new_row);
 
         for (line, 1..) |c, colIdx| {
-            const row = map.items[rowIdx];
+            const row = map.items[row_idx];
             const cell = &row.items[colIdx];
             cell.kind = u8ToKind(c);
             cell.value = c;
@@ -149,12 +149,12 @@ pub fn solve(allocator: std.mem.Allocator, file: std.fs.File) anyerror!bp.AoCRes
             if (cell.kind == CellKind.Symbol) {
                 for (0..3) |rowOff| {
                     for (0..3) |colOff| {
-                        map.items[rowIdx + rowOff - 1].items[colIdx + colOff - 1].symbolNear = cell;
+                        map.items[row_idx + rowOff - 1].items[colIdx + colOff - 1].symbol_near = cell;
                     }
                 }
             }
         }
     }
 
-    return try analyzeMap(allocator, mapOpt.?);
+    return try analyzeMap(allocator, map_opt.?);
 }

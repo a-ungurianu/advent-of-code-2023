@@ -43,14 +43,14 @@ fn parseCard(allocator: std.mem.Allocator, line: []const u8) !Card {
     };
 }
 
-fn setIntesection(comptime T: type, allocator: std.mem.Allocator, setA: HashSet(T), setB: HashSet(T)) !HashSet(T) {
+fn setIntesection(comptime T: type, allocator: std.mem.Allocator, set_a: HashSet(T), set_b: HashSet(T)) !HashSet(T) {
     var intersect = HashSet(T).init(allocator);
     errdefer intersect.deinit();
 
-    var it = setA.keyIterator();
+    var it = set_a.keyIterator();
 
     while (it.next()) |k| {
-        if (setB.contains(k.*)) {
+        if (set_b.contains(k.*)) {
             try intersect.put(k.*, {});
         }
     }
@@ -77,32 +77,32 @@ pub fn solve(allocator: std.mem.Allocator, file: std.fs.File) anyerror!bp.AoCRes
     var in_stream = buf_reader.reader();
 
     var buf: [1000]u8 = undefined;
-    var rowIdx: u16 = 1;
+    var row_idx: u16 = 1;
 
     var part1: u64 = 0;
 
-    var cardMultipliers = std.ArrayList(struct { matches: usize, count: usize }).init(allocator);
-    defer cardMultipliers.deinit();
+    var card_multipliers = std.ArrayList(struct { matches: usize, count: usize }).init(allocator);
+    defer card_multipliers.deinit();
 
-    while (try in_stream.readUntilDelimiterOrEof(&buf, '\n')) |line| : (rowIdx += 1) {
+    while (try in_stream.readUntilDelimiterOrEof(&buf, '\n')) |line| : (row_idx += 1) {
         var card = try parseCard(allocator, line);
         defer card.deinit();
 
-        var pickedWinners = try setIntesection(u8, allocator, card.winning, card.scratched);
-        defer pickedWinners.deinit();
+        var picked_winners = try setIntesection(u8, allocator, card.winning, card.scratched);
+        defer picked_winners.deinit();
 
-        if (pickedWinners.count() > 0) {
-            part1 += std.math.pow(u64, 2, pickedWinners.count() - 1);
+        if (picked_winners.count() > 0) {
+            part1 += std.math.pow(u64, 2, picked_winners.count() - 1);
         }
-        try cardMultipliers.append(.{ .matches = pickedWinners.count(), .count = 1 });
+        try card_multipliers.append(.{ .matches = picked_winners.count(), .count = 1 });
     }
 
     var part2: u64 = 0;
-    for (0..cardMultipliers.items.len) |idx| {
-        var cardMult = &cardMultipliers.items[idx];
-        part2 += cardMult.count;
-        for ((idx + 1)..@max(idx + 1, @min(idx + cardMult.matches + 1, cardMultipliers.items.len))) |i| {
-            cardMultipliers.items[i].count += cardMult.count;
+    for (0..card_multipliers.items.len) |idx| {
+        var card_mult = &card_multipliers.items[idx];
+        part2 += card_mult.count;
+        for ((idx + 1)..@max(idx + 1, @min(idx + card_mult.matches + 1, card_multipliers.items.len))) |i| {
+            card_multipliers.items[i].count += card_mult.count;
         }
     }
 
