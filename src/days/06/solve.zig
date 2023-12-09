@@ -1,21 +1,13 @@
 const std = @import("std");
 
+const parse = @import("../../common/parse.zig");
 const bp = @import("../../boilerplate.zig");
 
 fn parseLine(allocator: std.mem.Allocator, line: []u8) !std.ArrayList(u32) {
     var line_parts = std.mem.splitScalar(u8, line, ':');
     _ = line_parts.next();
 
-    var nums_parts = std.mem.tokenizeScalar(u8, line_parts.next().?, ' ');
-
-    var nums = std.ArrayList(u32).init(allocator);
-    errdefer nums.deinit();
-
-    while (nums_parts.next()) |nums_part| {
-        try nums.append(try std.fmt.parseUnsigned(u32, nums_part, 10));
-    }
-
-    return nums;
+    return try parse.numbers(u32, allocator, line_parts.next().?, " ");
 }
 
 fn calculateRaceDistance(wait_time: u64, total_time: u64) u64 {

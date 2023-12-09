@@ -1,5 +1,7 @@
 const std = @import("std");
 
+const array = @import("../../common/array.zig");
+
 const bp = @import("../../boilerplate.zig");
 
 const CubeCount = struct { red: u32 = 0, green: u32 = 0, blue: u32 = 0 };
@@ -7,15 +9,6 @@ const CubeCount = struct { red: u32 = 0, green: u32 = 0, blue: u32 = 0 };
 const Game = struct { id: u32, picks: std.ArrayList(CubeCount) };
 
 const CAPACITY = CubeCount{ .red = 12, .green = 13, .blue = 14 };
-
-fn every(comptime T: type, array: std.ArrayList(T), pred: fn (val: T) bool) bool {
-    for (array.items) |item| {
-        if (!pred(item)) {
-            return false;
-        }
-    }
-    return true;
-}
 
 fn fitsInCapacity(capacity: CubeCount, pick: CubeCount) bool {
     if (capacity.blue < pick.blue) return false;
@@ -95,7 +88,7 @@ pub fn solve(allocator: std.mem.Allocator, file: std.fs.File) anyerror!bp.AoCRes
         const game = try parseGame(line, allocator);
         defer game.picks.deinit();
 
-        if (every(CubeCount, game.picks, fitsInPart1Capacity)) {
+        if (array.every(CubeCount, game.picks.items, fitsInPart1Capacity)) {
             total += game.id;
         }
 

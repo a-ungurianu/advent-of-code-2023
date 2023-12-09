@@ -1,5 +1,7 @@
 const std = @import("std");
 
+const array = @import("../../common/array.zig");
+
 const bp = @import("../../boilerplate.zig");
 
 const Dir = enum { left, right };
@@ -28,13 +30,8 @@ fn parseNodeId(buf: []const u8) NodeId {
     return res;
 }
 
-fn allNotZero(counts: []usize) bool {
-    for (counts) |count| {
-        if (count == 0) {
-            return false;
-        }
-    }
-    return true;
+fn isNotZero(n: usize) bool {
+    return n != 0;
 }
 
 fn lcm(a: u64, b: u64) u64 {
@@ -107,7 +104,7 @@ pub fn solve(allocator: std.mem.Allocator, file: std.fs.File) anyerror!bp.AoCRes
 
     dirIdx = 0;
     var ghost_step_count: u64 = 0;
-    while (!allNotZero(ghost_step_counts.items)) {
+    while (!array.every(usize, ghost_step_counts.items, isNotZero)) {
         for (cur_nodes.items, 0..) |*cur_node, i| {
             if (cur_node.*[2] == 'Z') {
                 ghost_step_counts.items[i] = ghost_step_count;

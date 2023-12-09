@@ -1,5 +1,6 @@
 const std = @import("std");
 
+const parse = @import("../../common/parse.zig");
 const bp = @import("../../boilerplate.zig");
 
 fn parseSeeds(allocator: std.mem.Allocator, line: []u8) !std.ArrayList(u64) {
@@ -9,16 +10,7 @@ fn parseSeeds(allocator: std.mem.Allocator, line: []u8) !std.ArrayList(u64) {
 
     var numbers_s = parts.next().?;
 
-    var number_parts = std.mem.tokenizeScalar(u8, numbers_s, ' ');
-
-    var numbers = std.ArrayList(u64).init(allocator);
-    errdefer numbers.deinit();
-
-    while (number_parts.next()) |number| {
-        try numbers.append(try std.fmt.parseUnsigned(u32, number, 10));
-    }
-
-    return numbers;
+    return try parse.numbers(u64, allocator, numbers_s, " ");
 }
 
 const RangeMapping = struct {
