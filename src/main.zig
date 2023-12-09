@@ -12,6 +12,7 @@ const solutions = [_]Solution{
     .{ .day = 6, .solve = @import("./days/06/solve.zig").solve },
     .{ .day = 7, .solve = @import("./days/07/solve.zig").solve },
     .{ .day = 8, .solve = @import("./days/08/solve.zig").solve },
+    .{ .day = 9, .solve = @import("./days/09/solve.zig").solve },
 };
 
 fn getDayDir(allocator: std.mem.Allocator, day: u8, path: []const []const u8) ![]u8 {
