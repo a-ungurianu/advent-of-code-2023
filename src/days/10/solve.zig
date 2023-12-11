@@ -155,10 +155,8 @@ fn isValidConnection(dir: Pos, cell: Cell) bool {
     unreachable;
 }
 
-fn neighboursOf(allocator: std.mem.Allocator, map: Map, pos: Pos) !std.ArrayList(Pos) {
-    var neighs = std.ArrayList(Pos).init(allocator);
-    errdefer neighs.deinit();
-
+fn neighboursOf(neighs: *std.ArrayList(Pos), map: Map, pos: Pos) void {
+    neighs.clearRetainingCapacity();
     const cell = mapGet(map, pos).cell;
 
     switch (cell) {
@@ -167,7 +165,7 @@ fn neighboursOf(allocator: std.mem.Allocator, map: Map, pos: Pos) !std.ArrayList
             for ([_]Pos{ N, E, W, S }) |dir| {
                 const neigh = dir.add(pos);
                 if (inBounds(map, neigh) and isValidConnection(dir, mapGet(map, neigh).cell)) {
-                    try neighs.append(neigh);
+                    neighs.appendAssumeCapacity(neigh);
                 }
             }
         },
@@ -175,13 +173,11 @@ fn neighboursOf(allocator: std.mem.Allocator, map: Map, pos: Pos) !std.ArrayList
             for (pipeToDirs(pipe)) |dir| {
                 const neigh = dir.add(pos);
                 if (inBounds(map, neigh) and isValidConnection(dir, mapGet(map, neigh).cell)) {
-                    try neighs.append(neigh);
+                    neighs.appendAssumeCapacity(neigh);
                 }
             }
         },
     }
-
-    return neighs;
 }
 
 fn inferNS(map: Map, n: Pos, s: Pos, _: Pos, _: Pos) bool {
@@ -418,12 +414,14 @@ pub fn solve(allocator: std.mem.Allocator, file: std.fs.File) anyerror!bp.AoCRes
     try to_visit.writeItem(start_pos);
 
     var max_distance: u64 = 0;
-    while (to_visit.readItem()) |pos| {
-        var curCell = mapGet(map, pos);
-        var curDistance = curCell.distance orelse unreachable;
 
-        const neighs = try neighboursOf(allocator, map, pos);
-        defer neighs.deinit();
+    var neighs = try std.ArrayList(Pos).initCapacity(allocator, 4);
+    defer neighs.deinit();
+    while (to_visit.readItem()) |pos| {
+        const curCell = mapGet(map, pos);
+        const curDistance = curCell.distance orelse unreachable;
+
+        neighboursOf(&neighs, map, pos);
 
         for (neighs.items) |neigh| {
             var neighCell = mapGet(map, neigh);
@@ -438,13 +436,10 @@ pub fn solve(allocator: std.mem.Allocator, file: std.fs.File) anyerror!bp.AoCRes
     mapGet(map, start_pos).cell = .{ .pipe = inferCell(map, start_pos) };
     var count_inside: u64 = 0;
 
-    for (map.items, 0..) |row, rowIdx| {
+    for (map.items) |row| {
         var is_inside = false;
-        for (row.items, 0..) |cell_with_dist, colIdx| {
+        for (row.items) |cell_with_dist| {
             const cell = cell_with_dist.cell;
-            const pos = initPos(@intCast(rowIdx), @intCast(colIdx));
-            var s: []const u8 = ".";
-            _ = pos;
 
             if (cell_with_dist.distance) |_| {
                 switch (cell) {
@@ -457,7 +452,6 @@ pub fn solve(allocator: std.mem.Allocator, file: std.fs.File) anyerror!bp.AoCRes
                 }
             } else {
                 if (is_inside) {
-                    s = "#";
                     count_inside += 1;
                 }
             }
