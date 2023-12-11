@@ -8,7 +8,7 @@ fn parseSeeds(allocator: std.mem.Allocator, line: []u8) !std.ArrayList(u64) {
 
     _ = parts.next();
 
-    var numbers_s = parts.next().?;
+    const numbers_s = parts.next().?;
 
     return try parse.numbers(u64, allocator, numbers_s, " ");
 }

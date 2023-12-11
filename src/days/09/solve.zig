@@ -60,7 +60,7 @@ pub fn solve(allocator: std.mem.Allocator, file: std.fs.File) anyerror!bp.AoCRes
         var vals = try parse.numbers(i32, allocator, line, " ");
         defer vals.deinit();
 
-        var values = try findExtrapolatedValues(allocator, vals);
+        const values = try findExtrapolatedValues(allocator, vals);
         part1 += values.last;
         part2 += values.first;
     }

@@ -15,9 +15,6 @@ fn calculateRaceDistance(wait_time: u64, total_time: u64) u64 {
 }
 
 fn countWaysToBeatRace(record_distance: u64, time: u64) u64 {
-    var count: u32 = 0;
-    _ = count;
-
     var last_under: u64 = 0;
     // the - 1 at the end is to put us below the half way point of times as
     // f(time) is a quadratic with no offset

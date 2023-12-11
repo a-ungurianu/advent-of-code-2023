@@ -54,8 +54,8 @@ fn pipeToDirs(pipe: PipeKind) [2]Pos {
 const CellTag = enum { empty, pipe, start };
 const Cell = union(CellTag) {
     empty: void,
-    start: void,
     pipe: PipeKind,
+    start: void,
 };
 
 const CellWithTracking = struct {

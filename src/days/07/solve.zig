@@ -174,9 +174,9 @@ test "calculateHandWithJokers" {
 fn parseGame(line: []const u8) !Game {
     var parts = std.mem.splitScalar(u8, line, ' ');
 
-    var hand = parseHand(parts.next().?);
+    const hand = parseHand(parts.next().?);
 
-    var bid = try std.fmt.parseUnsigned(u32, parts.next().?, 10);
+    const bid = try std.fmt.parseUnsigned(u32, parts.next().?, 10);
 
     return .{ .hand = hand, .bid = bid, .power = calculateHandPower(hand, false) };
 }

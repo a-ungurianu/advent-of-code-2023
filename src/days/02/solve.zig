@@ -58,15 +58,15 @@ fn parseCubeCounts(line: []const u8, allocator: std.mem.Allocator) !std.ArrayLis
 
 fn parseGame(line: []const u8, allocator: std.mem.Allocator) !Game {
     var header_game = std.mem.split(u8, line, ":");
-    var header = header_game.next().?;
+    const header = header_game.next().?;
 
-    var game_id = blk: {
+    const game_id = blk: {
         var it = std.mem.split(u8, header, " ");
         _ = it.next();
         break :blk try std.fmt.parseUnsigned(u32, it.next().?, 10);
     };
 
-    var game = header_game.next().?;
+    const game = header_game.next().?;
     const picks = try parseCubeCounts(game, allocator);
 
     return Game{ .id = game_id, .picks = picks };

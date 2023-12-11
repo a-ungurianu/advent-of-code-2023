@@ -99,7 +99,7 @@ pub fn solve(allocator: std.mem.Allocator, file: std.fs.File) anyerror!bp.AoCRes
 
     var part2: u64 = 0;
     for (0..card_multipliers.items.len) |idx| {
-        var card_mult = &card_multipliers.items[idx];
+        const card_mult = &card_multipliers.items[idx];
         part2 += card_mult.count;
         for ((idx + 1)..@max(idx + 1, @min(idx + card_mult.matches + 1, card_multipliers.items.len))) |i| {
             card_multipliers.items[i].count += card_mult.count;

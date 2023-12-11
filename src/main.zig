@@ -36,7 +36,7 @@ fn executeSolution(allocator: std.mem.Allocator, comptime solution: Solution, in
     const dayDir = try getDayDir(allocator, solution.day, &[_][]const u8{ "data", input_file orelse "input" });
     defer allocator.free(dayDir);
 
-    var file = std.fs.openFileAbsolute(dayDir, .{}) catch |err| {
+    const file = std.fs.openFileAbsolute(dayDir, .{}) catch |err| {
         std.log.err("Failed to open {s}\n", .{dayDir});
         return err;
     };

@@ -57,7 +57,7 @@ pub fn solve(allocator: std.mem.Allocator, file: std.fs.File) anyerror!bp.AoCRes
     try row_offsets.append(0);
 
     for (row_has_galaxy.items) |rg| {
-        var add: u32 = if (rg) 0 else 1;
+        const add: u32 = if (rg) 0 else 1;
         try row_offsets.append(row_offsets.getLast() + add);
     }
 
@@ -67,15 +67,15 @@ pub fn solve(allocator: std.mem.Allocator, file: std.fs.File) anyerror!bp.AoCRes
     try col_offsets.append(0);
 
     for (col_has_galaxy.items) |rg| {
-        var add: u32 = if (rg) 0 else 1;
+        const add: u32 = if (rg) 0 else 1;
         try col_offsets.append(col_offsets.getLast() + add);
     }
 
     var dist_sum: usize = 0;
     for (galaxies.items, 0..) |g1, idx| {
-        var g1_offd = initPos(g1.re + row_offsets.items[g1.re], g1.im + col_offsets.items[g1.im]);
+        const g1_offd = initPos(g1.re + row_offsets.items[g1.re], g1.im + col_offsets.items[g1.im]);
         for (galaxies.items[idx..]) |g2| {
-            var g2_offd = initPos(g2.re + row_offsets.items[g2.re], g2.im + col_offsets.items[g2.im]);
+            const g2_offd = initPos(g2.re + row_offsets.items[g2.re], g2.im + col_offsets.items[g2.im]);
             dist_sum += manhattanDistanc(g1_offd, g2_offd);
         }
     }
@@ -84,9 +84,9 @@ pub fn solve(allocator: std.mem.Allocator, file: std.fs.File) anyerror!bp.AoCRes
 
     var dist_sum_2: usize = 0;
     for (galaxies.items, 0..) |g1, idx| {
-        var g1_offd = initPos(g1.re + row_offsets.items[g1.re] * expansion, g1.im + col_offsets.items[g1.im] * expansion);
+        const g1_offd = initPos(g1.re + row_offsets.items[g1.re] * expansion, g1.im + col_offsets.items[g1.im] * expansion);
         for (galaxies.items[idx..]) |g2| {
-            var g2_offd = initPos(g2.re + row_offsets.items[g2.re] * expansion, g2.im + col_offsets.items[g2.im] * expansion);
+            const g2_offd = initPos(g2.re + row_offsets.items[g2.re] * expansion, g2.im + col_offsets.items[g2.im] * expansion);
             dist_sum_2 += manhattanDistanc(g1_offd, g2_offd);
         }
     }

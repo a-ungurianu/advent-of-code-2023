@@ -25,8 +25,7 @@ fn parseDirs(allocator: std.mem.Allocator, line: []u8) !std.ArrayList(Dir) {
 
 fn parseNodeId(buf: []const u8) NodeId {
     var res = NodeId{ 0, 0, 0 };
-
-    std.mem.copy(u8, &res, buf);
+    std.mem.copyForwards(u8, &res, buf);
     return res;
 }
 
@@ -55,7 +54,7 @@ pub fn solve(allocator: std.mem.Allocator, file: std.fs.File) anyerror!bp.AoCRes
     while (try in_stream.readUntilDelimiterOrEof(&buf, '\n')) |line| {
         var parts = std.mem.splitSequence(u8, line, " = ");
 
-        var from = parseNodeId(parts.next().?);
+        const from = parseNodeId(parts.next().?);
 
         var tos = std.mem.tokenizeAny(u8, parts.next().?, "(, )");
 
