@@ -20,6 +20,7 @@ const solutions = [_]Solution{
     .{ .day = 14, .solve = @import("./days/14/solve.zig").solve },
     .{ .day = 15, .solve = @import("./days/15/solve.zig").solve },
     .{ .day = 16, .solve = @import("./days/16/solve.zig").solve },
+    .{ .day = 17, .solve = @import("./days/17/solve.zig").solve },
     .{ .day = 18, .solve = @import("./days/18/solve.zig").solve },
 };
 
